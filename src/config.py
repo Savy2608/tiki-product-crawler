@@ -92,14 +92,19 @@ def parse_args(argv=None):
                    help="curl binary for --transport curl (default: curl on PATH)")
     p.add_argument("--limit", type=int, default=_env("limit", int, d.limit),
                    help="crawl only the first N IDs into output_test/ (test mode)")
-    p.add_argument("--reclean", action="store_true",
-                   help="re-clean the descriptions of saved files and exit (Bug 9 fix)")
+    modes = p.add_mutually_exclusive_group()
+    modes.add_argument("--retry-errors", dest="mode", action="store_const", const="retry",
+                       help="request again the saved IDs that failed for a reason other "
+                            "than HTTP 404, then exit")
+    modes.add_argument("--reclean", dest="mode", action="store_const", const="reclean",
+                       help="re-clean the descriptions of saved files and exit (Bug 9 fix)")
+    p.set_defaults(mode="crawl")
     args = p.parse_args(argv)
 
-    values = {k: v for k, v in vars(args).items() if k != "reclean"}
+    values = {k: v for k, v in vars(args).items() if k != "mode"}
     config = Config(**values)
     if config.limit and config.output_dir == d.output_dir:
         config.output_dir = "output_test"  # keep test runs away from the real output
     if config.workers < 1 or config.batch_size < 1:
         p.error("--workers and --batch-size must be at least 1")
-    return config, args.reclean
+    return config, args.mode

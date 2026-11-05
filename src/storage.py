@@ -11,6 +11,8 @@ import json
 import os
 from collections import Counter
 
+NOT_FOUND = "HTTP 404 - product not found"
+
 
 def load_ids(path):
     """Read the product IDs from the input CSV (utf-8-sig removes the BOM)."""
@@ -65,6 +67,28 @@ class BatchFiles:
         handle.write(json.dumps({"pid": pid, "product": product, "error": error},
                                 ensure_ascii=False) + "\n")
         handle.flush()
+
+    def retryable_ids(self):
+        """IDs of this finished batch that failed for a reason other than HTTP 404."""
+        return [str(e["id"]) for e in load_json(self.errors) if e["reason"] != NOT_FOUND]
+
+    def merge_retried(self, batch_ids, results):
+        """Put the new results of retried IDs into the saved files, keeping input order.
+
+        results: {pid: (product, error)}. Returns (products, errors) as saved."""
+        products = load_json(self.products)
+        errors = [e for e in load_json(self.errors) if str(e["id"]) not in results]
+        for product, error in results.values():
+            if product:
+                products.append(product)
+            else:
+                errors.append(error)
+        position = {pid: i for i, pid in enumerate(batch_ids)}
+        products.sort(key=lambda p: position.get(str(p["id"]), len(position)))
+        errors.sort(key=lambda e: position.get(str(e["id"]), len(position)))
+        save_json(self.errors, errors)
+        save_json(self.products, products)
+        return products, errors
 
     def save(self, batch_ids, done):
         """Write errors, then products (the finished marker), then drop the partial file."""

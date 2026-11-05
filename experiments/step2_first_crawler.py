@@ -1,5 +1,5 @@
 """
-Project 02 - Tiki product crawler
+Tiki product crawler
 
 Downloads product details for 200k product IDs from the Tiki API and saves
 them into JSON files of 1,000 products each. Failed IDs are saved together

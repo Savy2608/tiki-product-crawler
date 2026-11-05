@@ -1,17 +1,15 @@
-# Tiki Product Crawler – Project 02
+# Tiki Product Crawler
 
 [![Tests](https://github.com/Savy2608/tiki-product-crawler/actions/workflows/tests.yml/badge.svg)](https://github.com/Savy2608/tiki-product-crawler/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
 
-**Course:** UniGap K28 Data Engineering · **Author:** Vy Ngo
-
 This project downloads product details for 200,000 Tiki product IDs, keeps 6 fields per product, and saves them as JSON files of 1,000 products each. IDs that fail are saved in separate files together with the reason.
 
-> **Status (Oct 22):** the crawl is still running – 15 of 200 batches are done. See [Results](#results).
+> **Status:** complete. All 200,000 IDs were processed: 124,299 products saved, 75,701 IDs no longer exist on Tiki (HTTP 404). See [Results](#results).
 
 ## Contents
 
-- [Assignment checklist](#assignment-checklist)
+- [Requirements](#requirements)
 - [How to run](#how-to-run)
 - [Configuration](#configuration)
 - [How it works](#how-it-works)
@@ -21,17 +19,17 @@ This project downloads product details for 200,000 Tiki product IDs, keeps 6 fie
 - [Project structure](#project-structure)
 - [Documentation](#documentation)
 
-## Assignment checklist
+## Requirements
 
 | Requirement | Status | Where |
 | --- | --- | --- |
 | Read 200,000 IDs from `products-0-200000.csv` (file has a BOM) | Done | `storage.load_ids()` |
 | Call `https://api.tiki.vn/product-detail/api/v1/products/{id}` | Done | `api_client.TikiClient` |
 | Keep `id`, `name`, `url_key`, `price`, `description`, `images` | Done | `parser.extract()` |
-| Remove HTML from `description` | Done ([Bug 9](docs/bug_report.md#bug-9--escaped-html-left-in-descriptions) fixed; saved files are re-cleaned after the crawl) | `parser.clean_description()` |
+| Remove HTML from `description` | Done (incl. escaped HTML, [Bug 9](docs/bug_report.md#bug-9--escaped-html-left-in-descriptions)) | `parser.clean_description()` |
 | One JSON file per 1,000 products | Done | `storage.BatchFiles` → `products_XXXX.json` |
 | Save failed IDs with the reason | Done | `errors_XXXX.json` |
-| Crawl all 200,000 IDs | In progress (15 / 200 batches) | [Results](#results) |
+| Crawl all 200,000 IDs | Done (200 / 200 batches, 0 missing, 0 duplicate) | [Results](#results) |
 
 ## How to run
 
@@ -48,6 +46,7 @@ On macOS, run `caffeinate -i python main.py` instead, so the Mac does not go to 
 ```bash
 python main.py --limit 50                 # test run on the first 50 IDs (output goes to output_test/)
 python main.py --transport curl           # use the curl binary instead of pycurl
+python main.py --retry-errors             # after the crawl: request again the IDs that failed with a non-404 error
 python main.py --reclean                  # after the crawl: re-clean saved descriptions (Bug 9)
 python main.py --help                     # all options
 ```
@@ -61,7 +60,7 @@ Run the unit tests (they never contact Tiki):
 python -m unittest discover -s tests -v
 ```
 
-The 41 tests also run on GitHub Actions (Python 3.9 and 3.12) for every push.
+The 42 tests also run on GitHub Actions (Python 3.9 and 3.12) for every push.
 
 ## Configuration
 
@@ -100,7 +99,7 @@ The code is split into small modules, each with one job:
 
 **Handling Tiki's limits.** Tiki returns an HTML block page (HTTP 200) or HTTP 403/429 when requests come too fast. The crawler waits `delay` seconds before each request. After 50 successes in a row the delay gets 10% shorter; after a block it gets 50% longer and all workers pause 5 minutes (up to 15 minutes if blocks continue), then the same ID is retried. One worker is used, because a test with 2 workers was about 3 times slower due to block pauses ([Bug 6](docs/bug_report.md#bug-6--parallel-workers-slower-than-one-worker)).
 
-**Errors.** HTTP 404 means the product no longer exists on Tiki; it is saved as `HTTP 404 - product not found`. Network errors are tried 5 times (waiting 5, 10, 15, 20 s), then saved with the reason.
+**Errors.** HTTP 404 means the product no longer exists on Tiki; it is saved as `HTTP 404 - product not found`. Network errors are tried 5 times (waiting 5, 10, 15, 20 s), then saved with the reason. `--retry-errors` requests those IDs again later and merges the new results into the same batch files, in input order.
 
 **Cleaning.** Descriptions are parsed with Python's `html.parser` twice: the first pass removes tags and decodes entities, the second removes tags that sellers wrote in escaped form (`&lt;span&gt;`, [Bug 9](docs/bug_report.md#bug-9--escaped-html-left-in-descriptions)). Plain text such as `<3` is kept.
 
@@ -108,7 +107,7 @@ The code is split into small modules, each with one job:
 
 ## Output
 
-Files are written to `output/`, which is not in Git because of its size (about 300 MB when complete). Real examples are in [`sample/`](sample/).
+Files are written to `output/`, which is not in Git because of its size (314 MB). Real examples are in [`sample/`](sample/).
 
 | File | Content |
 | --- | --- |
@@ -144,27 +143,32 @@ Example failed ID:
 
 ## Results
 
-The crawl is still running. These numbers are for the finished batches (Oct 22, 12:30 PDT); the full results from `summary.json` will be added when the crawl finishes, expected around Oct 28. Batches 1–15 were downloaded with the first, single-file version of the crawler; the current version writes the same files and continues where it stopped.
+Final numbers from `output/summary.json`:
 
-| Metric | Batches 1–15 |
+| Metric | Value |
 | --- | --- |
-| IDs processed | 15,000 |
-| Saved products | 9,784 (65.2%) |
-| Failed – HTTP 404 | 5,214 (34.8%) |
-| Failed – network error | 2 (curl could not resolve the host; will be retried after the crawl) |
+| Input IDs | 200,000 |
+| Saved products | **124,299** (62.1%) |
+| Failed – HTTP 404 (product no longer exists) | 75,701 (37.9%) |
+| Failed – other reasons | 0 |
 | Missing / duplicate IDs | 0 / 0 |
-| Time per batch | 22–144 min, about 43 min on average |
+| Output size | 200 product files + 200 error files, 314 MB |
+| Run time | Oct 22 – Nov 1, about 11 days including block pauses and times the laptop was asleep |
 
-Data checks on the finished batches:
+The crawl ended with 61 network errors (curl could not resolve the host when the Wi-Fi dropped). `python main.py --retry-errors` requested them again with the pycurl transport: 37 were saved and the other 24 now return HTTP 404.
 
-- The output IDs match the first 15,000 input IDs exactly.
-- Every saved product has a `name`, `url_key`, `price` and at least one image URL.
-- 2 descriptions still contain escaped HTML such as `<span;>`; they will be fixed with `python main.py --reclean` after the crawl ([Bug 9](docs/bug_report.md#bug-9--escaped-html-left-in-descriptions)). 2 products have `price: 0` as returned by the API.
+Data checks on the final output:
+
+- Every input ID appears exactly once, in a product file or an error file.
+- Every product has exactly the 6 fields, and `images` is always a list.
+- No description contains HTML tags or entities after `python main.py --reclean` (157 descriptions were fixed, [Bug 9](docs/bug_report.md#bug-9--escaped-html-left-in-descriptions)).
+- Kept as returned by the API: 22 products with `price: 0`, 9 without images, 1 with an empty `url_key`.
 
 ## Known limitations
 
-- **Speed.** About 43 minutes per 1,000 IDs with the first version, mostly because of Tiki's rate limit. Reusing connections with pycurl should cut the time per request, but the rate limit still sets the pace.
-- **pycurl transport not yet tested against Tiki.** It is covered by unit tests and uses the same libcurl as the curl binary that Tiki accepts, but it has not been run against the live API yet. If Tiki blocks it, run with `--transport curl`.
+- **Speed.** The rate limit sets the pace: about 1 request per 0.5–0.6 s with one worker, so a full crawl takes days. Batches 1–15 took about 43 minutes each with the first version. A faster crawl would need more IP addresses, not more threads ([Bug 6](docs/bug_report.md#bug-6--parallel-workers-slower-than-one-worker)).
+- **The full crawl ran on the first version.** It was already running when the code was refactored, and the output format did not change. The refactored code was tested against the live API with `--retry-errors` (pycurl was accepted by Tiki), but the speed gain from connection reuse was not measured on a full batch.
+- **Snapshot.** Prices and availability change; the data reflects Tiki between Oct 22 and Nov 5, 2026.
 
 ## Project structure
 
@@ -175,13 +179,13 @@ Data checks on the finished batches:
 │   ├── api_client.py        # HTTP transport, throttle, retries and backoff
 │   ├── parser.py            # JSON fields and HTML cleaning
 │   └── storage.py           # input CSV, batch files, resume, verify
-├── tests/                   # 41 unit tests (no network)
+├── tests/                   # 42 unit tests (no network)
 ├── products-0-200000.csv    # input: 200,000 product IDs
 ├── requirements.txt         # pycurl (already included in Anaconda)
 ├── .env.example             # example settings
 ├── docs/
 │   ├── bug_report.md        # 9 problems found and how they were handled
-│   └── task_report.md       # goal, steps, code review changes and progress
+│   └── task_report.md       # goal, steps, code review changes and results
 ├── sample/                  # example API response, products and errors
 ├── experiments/             # my early test scripts (see experiments/README.md)
 ├── .github/workflows/       # runs the tests on every push
@@ -192,5 +196,5 @@ Data checks on the finished batches:
 ## Documentation
 
 - [Bug report](docs/bug_report.md) – the 9 problems I found while building and running the crawler: symptom, cause, how I found it, fix and lesson.
-- [Task report](docs/task_report.md) – goal, approach, steps, changes after code review, current results and remaining work.
+- [Task report](docs/task_report.md) – goal, approach, steps, changes after code review, results and next steps.
 - [Experiments](experiments/README.md) – my first test scripts and how the first crawler differs from the final one.

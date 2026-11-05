@@ -1,4 +1,4 @@
-"""Project 02 - Tiki product crawler (entry point).
+"""Tiki product crawler (entry point).
 
 Downloads product details for the IDs in the input CSV and saves them into
 JSON files of 1,000 products each; failed IDs are saved with the reason, and
@@ -24,14 +24,39 @@ def log(message):
     print(message, flush=True)
 
 
+def split_batches(ids, size):
+    return [ids[i:i + size] for i in range(0, len(ids), size)]
+
+
+def fetch_product(client, pid):
+    """Fetch one ID and keep the 6 fields: (product, None) or (None, error)."""
+    data, error = client.fetch(pid)
+    return (parser.extract(data), None) if data is not None else (None, error)
+
+
+def retry_errors(config, client, ids):
+    """Request again the saved IDs that failed for a reason other than HTTP 404."""
+    fixed = still_failed = 0
+    for n, batch in enumerate(split_batches(ids, config.batch_size), start=1):
+        files = storage.BatchFiles(config.output_dir, n)
+        if not files.is_finished():
+            continue
+        retry = files.retryable_ids()
+        if not retry:
+            continue
+        results = {pid: fetch_product(client, pid) for pid in retry}
+        files.merge_retried(batch, results)
+        ok = sum(1 for product, _ in results.values() if product)
+        fixed += ok
+        still_failed += len(retry) - ok
+        log(f"Batch {n}: retried {len(retry)} IDs, {ok} saved, {len(retry) - ok} still failed")
+    log(f"Retry done: {fixed} saved, {still_failed} still failed.")
+
+
 def crawl(config, client, ids):
     """Crawl every unfinished batch. Returns True when all batches are finished."""
-    batches = [ids[i:i + config.batch_size] for i in range(0, len(ids), config.batch_size)]
+    batches = split_batches(ids, config.batch_size)
     throttle = client.throttle
-
-    def fetch_product(pid):
-        data, error = client.fetch(pid)
-        return (parser.extract(data), None) if data is not None else (None, error)
 
     start = time.time()
     processed = 0
@@ -48,7 +73,8 @@ def crawl(config, client, ids):
                 log(f"  Batch {n}: resuming, {len(done)} IDs already done")
 
             with files.open_partial() as partial:
-                for pid, (product, error) in zip(todo, pool.map(fetch_product, todo)):
+                results = pool.map(lambda pid: fetch_product(client, pid), todo)
+                for pid, (product, error) in zip(todo, results):
                     done[pid] = (product, error)
                     files.append_partial(partial, pid, product, error)
                     processed += 1
@@ -72,14 +98,14 @@ def crawl(config, client, ids):
 
 
 def main(argv=None):
-    config, reclean = parse_args(argv)
+    config, mode = parse_args(argv)
 
-    if reclean:
+    if mode == "reclean":
         files, changed = storage.reclean_descriptions(config.output_dir, parser.clean_description)
         log(f"Re-cleaned {config.output_dir}/: {changed} descriptions changed in {files} files.")
         return
 
-    if config.limit:
+    if config.limit and mode == "crawl":
         shutil.rmtree(config.output_dir, ignore_errors=True)  # fresh start for every test run
     os.makedirs(config.output_dir, exist_ok=True)
 
@@ -93,10 +119,13 @@ def main(argv=None):
         f"| Workers: {config.workers} | Transport: {transport.name} "
         f"| Delay: {config.start_delay}-{config.max_delay}s | Output: {config.output_dir}/")
 
-    if crawl(config, client, ids):
-        summary = storage.verify(config.output_dir, ids)
-        log("Summary:")
-        log(json.dumps(summary, indent=2))
+    if mode == "retry":
+        retry_errors(config, client, ids)
+    elif not crawl(config, client, ids):
+        return
+    summary = storage.verify(config.output_dir, ids)
+    log("Summary:")
+    log(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

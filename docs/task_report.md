@@ -1,8 +1,8 @@
 # Task Report – Tiki Product Crawler
 
-- **Student:** Vy Ngo · **Course:** UniGap K28 Data Engineering
+- **Author:** Vy Ngo
 - **Repository:** https://github.com/Savy2608/tiki-product-crawler
-- **Status:** In progress – crawl running (15 / 200 batches done on Oct 22, expected to finish around Oct 28)
+- **Status:** Complete – all 200,000 IDs processed (Oct 22 – Nov 1, 2026; retry and re-clean on Nov 5)
 
 ---
 
@@ -44,49 +44,38 @@ Download product details for 200,000 Tiki product IDs and store them as clean JS
 
 ## 4. Changes after code review (Oct 22)
 
-The coach reviewed the first version. Each point and what changed:
+The first version was code-reviewed. Each point and what changed:
 
 | Review point | Change |
 | --- | --- |
 | The curl path `/opt/anaconda3/bin/curl` was hard-coded, so the script crashed on machines without Anaconda. | The default transport is now pycurl. The curl binary is only a fallback, found on `PATH` or given with `--curl-path`. If neither is available, the crawler stops at startup with a clear message. |
 | Starting a new `curl` process for each of the 200,000 requests wastes CPU and memory. | pycurl runs libcurl inside Python. Each worker thread keeps one curl handle, so the TLS connection is reused and no process is started per request. |
 | Settings (`MAX_WORKERS`, `START_DELAY`, …) were constants in the code. | `src/config.py` reads every setting from command-line options (`argparse`), environment variables or a `.env` file (`.env.example` is included). |
-| Everything was in one file, `tiki_crawler.py`. | Split into `src/api_client.py` (HTTP, retries, backoff), `src/parser.py` (JSON fields and HTML cleaning, Bug 9 fixed), `src/storage.py` (files, resume, verify) and `main.py` (entry point). The tests were split the same way (41 tests). |
+| Everything was in one file, `tiki_crawler.py`. | Split into `src/api_client.py` (HTTP, retries, backoff), `src/parser.py` (JSON fields and HTML cleaning, Bug 9 fixed), `src/storage.py` (files, resume, verify) and `main.py` (entry point). The tests were split the same way (42 tests). |
 
 The output format did not change, so the new version continues the crawl from the files written by the first version.
 
-## 5. Current results (Oct 22, 12:30 PDT)
+## 5. Results
 
-| Batches | Saved products | Failed IDs | Notes |
-| --- | --- | --- | --- |
-| 1–10 | 6,699 | 3,301 | All failures are HTTP 404, no missing IDs |
-| 11 | 721 | 279 | All failures are HTTP 404 |
-| 12 | 657 | 343 | All failures are HTTP 404 |
-| 13 | 695 | 305 | All failures are HTTP 404 |
-| 14 | 555 | 445 | 444 HTTP 404, 1 network error (curl could not resolve the host) |
-| 15 | 457 | 543 | 542 HTTP 404, 1 network error (curl could not resolve the host) |
-| **Total (15 / 200)** | **9,784** | **5,216** | 404 rate ≈ 34.8% |
+The crawl ran from Oct 22 to Nov 1 (about 11 days including block pauses and times the laptop was asleep). It was started with the first version, and the output format did not change.
 
-Data quality checks on the saved batches:
+| Metric | Value |
+| --- | --- |
+| Input IDs | 200,000 (all unique) |
+| Saved products | 124,299 (62.1%) |
+| Failed – HTTP 404 | 75,701 (37.9%) |
+| Failed – other reasons | 0 |
+| Missing / duplicate IDs | 0 / 0 |
 
-- Input has 200,000 rows and 200,000 unique IDs (no duplicates).
-- The output IDs are exactly the first 15,000 input IDs: none missing, none extra, none duplicated.
-- Every saved product has a `name`, `url_key` and `price`, and at least one image URL (4.9 on average).
-- 2 descriptions still contain tag-like text such as `<span;>`, which came from escaped HTML (`&lt;span;&gt;`); see [Bug 9](bug_report.md#bug-9--escaped-html-left-in-descriptions).
-- 2 products have `price: 0`, kept as returned by the API.
+After the crawl:
 
-Speed: 22–144 minutes per batch, about 43 minutes on average.
+1. **Retry.** 61 IDs had failed with a network error (curl could not resolve the host when the Wi-Fi dropped). `python main.py --retry-errors` requested them again: 37 were saved and 24 now return HTTP 404. This was also the first live test of the pycurl transport, and Tiki accepted it.
+2. **Re-clean.** `python main.py --reclean` fixed 157 descriptions that still had escaped HTML ([Bug 9](bug_report.md#bug-9--escaped-html-left-in-descriptions)).
+3. **Final checks.** Every input ID appears exactly once; every product has the 6 fields and `images` is a list; no description contains tags or entities. Kept as returned by the API: 22 products with `price: 0`, 9 without images, 1 with an empty `url_key`.
 
-## 6. Remaining work
+Speed: batches 1–15 took 22–144 minutes each, about 43 minutes on average.
 
-- [ ] Switch the running crawl to the new version (`python main.py`) right after a batch is saved, and check that pycurl is accepted by Tiki.
-- [ ] Let the crawl finish (around Oct 28).
-- [ ] Check `summary.json`: `missing_ids = 0`, `duplicate_ids = 0`, saved + failed = 200,000, and whether any errors other than HTTP 404 appear.
-- [ ] Run the IDs that failed with a network error again (2 so far).
-- [ ] Fill in the Results section of `README.md` (counts, total run time).
-- [ ] Re-clean all saved descriptions with `python main.py --reclean` ([Bug 9](bug_report.md#bug-9--escaped-html-left-in-descriptions)).
-- [ ] Next: load the data into PostgreSQL (Python + PostgreSQL module, Lab 01).
+## 6. Next steps
 
-## 7. Possible improvements
-
-- Measure how much faster batches are with pycurl connection reuse than with one curl process per request.
+- Load the data into PostgreSQL and model it for analysis.
+- Measure how much faster a full batch is with pycurl connection reuse than with one curl process per request.

@@ -32,7 +32,9 @@ class FakeTiki:
                                 "images": [{"base_url": f"https://img/{pid}.jpg"}]})
 
 
-class CrawlTest(unittest.TestCase):
+class FakeTikiCase(unittest.TestCase):
+    """A temporary output folder and a client that talks to FakeTiki."""
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.config = Config(output_dir=self.tmp.name, batch_size=2, start_delay=0, min_delay=0)
@@ -47,6 +49,8 @@ class CrawlTest(unittest.TestCase):
         with mock.patch.object(main, "log"):
             return main.crawl(self.config, self.client, self.ids)
 
+
+class CrawlTest(FakeTikiCase):
     def test_full_crawl_writes_batches_and_counts_every_id(self):
         self.assertTrue(self.run_crawl())
         files = sorted(os.listdir(self.tmp.name))
@@ -72,13 +76,41 @@ class CrawlTest(unittest.TestCase):
         self.assertFalse(os.path.exists(batch2.partial))
 
 
+class RetryErrorsTest(FakeTikiCase):
+    """--retry-errors requests again only the IDs that failed for a reason other than 404."""
+
+    def test_retry_replaces_network_errors_and_keeps_order(self):
+        storage.save_json(os.path.join(self.tmp.name, "products_0001.json"), [])
+        storage.save_json(os.path.join(self.tmp.name, "errors_0001.json"), [
+            {"id": "11", "reason": "request failed: curl exited with code 6"},
+            {"id": "20", "reason": "HTTP 404 - product not found"},
+        ])
+        storage.save_json(os.path.join(self.tmp.name, "products_0002.json"),
+                          [{"id": 44, "name": "kept"}])
+        storage.save_json(os.path.join(self.tmp.name, "errors_0002.json"),
+                          [{"id": "33", "reason": "HTTP 500"}])
+
+        with mock.patch.object(main, "log"):
+            main.retry_errors(self.config, self.client, self.ids)
+
+        self.assertEqual(self.transport.requested, ["11", "33"])  # 404s are not retried
+        load = lambda name: storage.load_json(os.path.join(self.tmp.name, name))  # noqa: E731
+        self.assertEqual([p["id"] for p in load("products_0001.json")], [11])
+        self.assertEqual(load("errors_0001.json"),
+                         [{"id": "20", "reason": "HTTP 404 - product not found"}])
+        self.assertEqual([p["id"] for p in load("products_0002.json")], [33, 44])  # input order
+        self.assertEqual(load("errors_0002.json"), [])
+        summary = storage.verify(self.tmp.name, ["11", "20", "33", "44"])
+        self.assertEqual((summary["missing_ids"], summary["duplicate_ids"]), (0, 0))
+
+
 class ConfigTest(unittest.TestCase):
     def test_defaults(self):
         with mock.patch.dict(os.environ, {}, clear=True), mock.patch("src.config.load_dotenv"):
-            config, reclean = parse_args([])
+            config, mode = parse_args([])
         self.assertEqual((config.workers, config.batch_size, config.transport, config.output_dir),
                          (1, 1000, "auto", "output"))
-        self.assertFalse(reclean)
+        self.assertEqual(mode, "crawl")
 
     def test_environment_and_command_line(self):
         env = {"TIKI_WORKERS": "3", "TIKI_START_DELAY": "1.5"}
@@ -93,10 +125,12 @@ class ConfigTest(unittest.TestCase):
             config, _ = parse_args(["--limit", "50"])
         self.assertEqual((config.limit, config.output_dir), (50, "output_test"))
 
-    def test_reclean_flag(self):
+    def test_mode_flags(self):
         with mock.patch.dict(os.environ, {}, clear=True), mock.patch("src.config.load_dotenv"):
-            _, reclean = parse_args(["--reclean"])
-        self.assertTrue(reclean)
+            self.assertEqual(parse_args(["--reclean"])[1], "reclean")
+            self.assertEqual(parse_args(["--retry-errors"])[1], "retry")
+            with self.assertRaises(SystemExit), mock.patch("sys.stderr"):
+                parse_args(["--reclean", "--retry-errors"])  # only one mode at a time
 
 
 if __name__ == "__main__":

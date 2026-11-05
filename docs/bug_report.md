@@ -12,7 +12,7 @@ Problems found while building and running the crawler: what happened, why, how i
 | 6 | Parallel workers slower than one worker | Fixed (`MAX_WORKERS = 1`) |
 | 7 | Ctrl+C did not stop the worker threads | Fixed |
 | 8 | Ctrl+C lost the batch in progress | Fixed |
-| 9 | Escaped HTML left in descriptions | Fixed in `src/parser.py`; saved files are re-cleaned after the crawl |
+| 9 | Escaped HTML left in descriptions | Fixed (`src/parser.py`, saved files re-cleaned) |
 
 ---
 
@@ -91,5 +91,5 @@ Problems found while building and running the crawler: what happened, why, how i
 - **Symptom:** 2 of the first 9,784 saved descriptions still contain tag-like text such as `<span;>` between words of the product text.
 - **Cause:** Some sellers' descriptions contain *escaped* HTML such as `&lt;span;&gt;` (the stray semicolon is in the data). `clean_description()` removes tags with a regex first and calls `html.unescape` afterwards, so `&lt;span;&gt;` only turns into `<span;>` after the regex has already run.
 - **How it was found:** A data quality check on the saved batches searched every description for text that looks like a tag or an entity.
-- **Fix:** `src/parser.py` now cleans descriptions with Python's `html.parser` in two passes: the first removes tags and decodes entities, the second removes tags that only appeared after decoding. Plain text such as `<3` is kept. Files saved before the fix are cleaned again with `python main.py --reclean` after the crawl.
+- **Fix:** `src/parser.py` now cleans descriptions with Python's `html.parser` in two passes: the first removes tags and decodes entities, the second removes tags that only appeared after decoding. Plain text such as `<3` is kept. Files saved before the fix were cleaned again with `python main.py --reclean` after the crawl: 157 of 124,299 descriptions changed, and a final check found no tags or entities left.
 - **Lesson:** Check the cleaned data, not only the code. The order of cleaning steps matters when the input can be encoded more than once.
