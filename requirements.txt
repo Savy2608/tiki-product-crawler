@@ -4,3 +4,8 @@
 # for many requests. Anaconda already includes it. Without pycurl the crawler
 # falls back to the curl binary (one process per request).
 pycurl>=7.45
+
+# LLM enrichment (enrichment/). The anthropic SDK needs Python 3.10+;
+# the unit tests use a fake LLM and need only pydantic.
+anthropic>=1.0
+pydantic>=2

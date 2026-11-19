@@ -1,0 +1,59 @@
+{
+  "model": "claude-haiku-5-5",
+  "prompts": {
+    "enrich": {
+      "version": "enrich_v1",
+      "sha": "880246cb4cfd"
+    },
+    "flag": {
+      "version": "flag_v1",
+      "sha": "bda486f53385"
+    }
+  },
+  "products": 1000,
+  "results": 1000,
+  "rejects": 0,
+  "rejects_by_step": {},
+  "completeness": {
+    "ok": true,
+    "expected": 1000,
+    "missing": 0,
+    "duplicates": 0,
+    "extra": 0
+  },
+  "api_calls_this_run": 0,
+  "products_from_cache": 1000,
+  "api_cost_usd_this_run": 0.0,
+  "input_tokens": 3716983,
+  "output_tokens": 259973,
+  "cost_usd": 0.501685,
+  "cost_per_1000_products_usd": 0.5017,
+  "mean_latency_ms_per_product": 2601,
+  "products_with_flags": 203,
+  "flags_by_source_and_type": {
+    "llm:counterfeit_or_brand_risk": 13,
+    "llm:name_description_mismatch": 10,
+    "llm:spam_or_low_quality": 58,
+    "rule:empty_url_key": 1,
+    "rule:no_images": 9,
+    "rule:price_outlier": 97,
+    "rule:price_zero": 22
+  },
+  "categories": {
+    "fashion_women": 313,
+    "fashion_men": 182,
+    "beauty_personal_care": 162,
+    "home_appliances": 88,
+    "toys_games": 78,
+    "shoes_bags_accessories": 76,
+    "health_medical": 53,
+    "mother_baby": 19,
+    "home_living": 11,
+    "other": 7,
+    "food_beverages": 5,
+    "books": 3,
+    "stationery_office": 2,
+    "computers_accessories": 1
+  },
+  "finished_at": "2026-11-18T21:12:11-0800"
+}

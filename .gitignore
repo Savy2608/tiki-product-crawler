@@ -17,3 +17,8 @@ nohup.out
 
 # Local settings
 .env
+
+# LLM response cache (rebuilt by python -m enrichment.enrich)
+data/llm_cache/
+data/results/test/
+data/results/partial_*.jsonl

@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install test dependencies
+        run: python -m pip install "pydantic>=2"
+
       - name: Compile all Python files
         run: python -m compileall -q main.py src enrichment experiments tests
 
