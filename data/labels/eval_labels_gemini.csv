@@ -1,0 +1,201 @@
+id,true_category,true_brand,name_description_mismatch,counterfeit_or_brand_risk,spam_or_low_quality,notes
+73552896,health_medical,Khánh An,0,0,0,kids mask
+162149114,shoes_bags_accessories,none,0,0,1,shop address in description
+198585517,fashion_women,none,0,0,0,
+43152885,shoes_bags_accessories,none,0,0,0,HANMYNGHE appears to be shop name
+196455942,fashion_women,CHOOSE,0,0,0,unisex
+194809450,fashion_women,none,0,1,0,uses luxury brand Miu Miu for locally made <100k garment
+136849081,toys_games,Mideer,0,0,0,brand only in the description
+143921270,toys_games,Softclay,0,0,0,empty description
+73794464,health_medical,none,0,0,0,
+263485787,beauty_personal_care,Sakura,0,0,0,
+90657285,fashion_women,none,0,0,0,
+144250427,shoes_bags_accessories,BEE GEE,0,0,0,
+181986604,fashion_women,none,0,0,0,post-surgery shapewear
+164892897,home_appliances,none,0,0,0,water purifier fitting
+111177779,shoes_bags_accessories,none,0,0,0,
+76105833,shoes_bags_accessories,HANHSON,0,0,0,
+206835018,beauty_personal_care,none,0,0,1,asks to inbox shop directly and mentions ship COD
+22613627,fashion_men,none,0,0,0,
+252400707,beauty_personal_care,YS,0,0,1,phone number and Facebook page in description
+149968843,toys_games,Tedu,0,0,0,brand only in the description
+97585652,shoes_bags_accessories,none,0,0,0,
+8509211,toys_games,MagicBook,0,0,0,
+141789477,beauty_personal_care,Tangle Teezer,0,0,0,
+19746130,fashion_women,none,1,0,1,title says below-knee long skirt but desc says 40cm skort; includes warehouse address
+122560987,shoes_bags_accessories,NBA,0,0,0,
+120386858,shoes_bags_accessories,none,0,0,0,
+217535079,health_medical,ADIVA,0,0,0,
+173519704,fashion_women,none,0,0,0,
+262646332,toys_games,none,0,0,0,
+142450272,shoes_bags_accessories,Royal Crown,0,0,0,
+9803081,beauty_personal_care,Aura Beauty,0,0,0,
+161040134,fashion_women,P2P BIKINI,0,0,0,
+216434697,food_beverages,Everest,0,0,0,
+9803068,beauty_personal_care,Ipek,0,0,0,
+205945413,fashion_men,TOMMY,0,0,0,brand only in the description
+91848566,other,Vương Miện,0,0,0,sewing supply (tailor's chalk)
+79665870,health_medical,none,0,0,0,massage chair
+107708790,shoes_bags_accessories,MVMT,0,0,0,
+136589088,beauty_personal_care,727,0,0,0,
+122088318,shoes_bags_accessories,Tatitava,0,0,1,phone numbers in description
+115827674,fashion_women,none,0,0,1,wholesale inbox prompt and low-quality text
+253413124,health_medical,KINGSPORT,0,0,0,
+193246987,mother_baby,none,0,0,0,
+104926377,fashion_men,none,0,0,0,
+24952261,shoes_bags_accessories,Banuli,1,0,0,title says Loafers H1SO3 but desc says Derby H1PD1M0
+247016076,beauty_personal_care,Geo Lamy,0,0,0,
+188975976,fashion_women,none,0,0,0,
+116345618,fashion_women,none,0,0,0,unisex; Ken Block is motif not brand
+176552554,home_appliances,Perfect,0,0,0,
+74175071,fashion_women,Đũi Việt,0,0,0,
+7697437,fashion_women,none,0,0,0,
+177609217,fashion_women,none,0,0,0,
+123927251,fashion_women,none,0,0,0,unisex
+251788308,sports_outdoor,Under Armour,0,0,0,
+180953620,beauty_personal_care,none,0,0,0,
+113919437,toys_games,none,0,0,0,
+135840113,shoes_bags_accessories,none,0,0,0,
+32260421,shoes_bags_accessories,none,0,0,0,
+56572142,mother_baby,Metacare,0,0,0,
+129916754,beauty_personal_care,MEDiCARE,0,0,0,
+118219034,fashion_women,none,0,0,0,
+877454,beauty_personal_care,Mayan,0,0,0,
+213866869,shoes_bags_accessories,none,0,0,0,empty description
+5729433,shoes_bags_accessories,none,1,0,0,title says men's crown but desc is bridal crown for women
+126997020,fashion_women,GENVIET,0,0,0,
+215141224,beauty_personal_care,Paula’s Choice,0,0,0,
+108910702,fashion_women,GOTI,0,0,0,
+253276859,mother_baby,Merries,0,0,0,
+207041222,toys_games,none,0,0,0,
+135648818,fashion_women,none,0,0,0,
+75485986,fashion_men,none,0,0,0,
+127665473,shoes_bags_accessories,none,0,0,1,phone number in description
+190481172,health_medical,none,0,0,0,
+123353368,mother_baby,Misuta,0,0,0,
+187298526,shoes_bags_accessories,none,0,0,0,
+137013873,beauty_personal_care,none,0,0,1,wholesale inbox prompt and minimal description
+7697454,fashion_women,none,0,0,0,
+26299441,beauty_personal_care,Kedma,0,0,0,
+248643786,beauty_personal_care,Redwin,0,0,0,
+76120541,shoes_bags_accessories,none,0,0,0,
+258231071,home_appliances,Electrolux,0,0,0,
+177201008,fashion_women,none,0,0,1,Zalo contact in description
+7697522,fashion_women,none,0,0,0,
+176135936,fashion_men,none,0,0,0,
+84749318,fashion_women,none,0,0,0,unisex
+16379003,beauty_personal_care,Benew,0,0,0,
+253276117,mother_baby,Merries,0,0,0,
+174661450,fashion_men,none,0,0,0,
+254903176,fashion_women,none,0,0,0,maternity wear
+56876244,shoes_bags_accessories,none,0,0,0,
+9671851,health_medical,Dyna,0,0,0,
+717075,home_appliances,CIVIN,0,0,0,
+105951014,fashion_men,CMV,0,0,0,
+68233656,fashion_women,none,0,0,0,
+174631447,shoes_bags_accessories,Aokang,0,0,0,
+201516541,other,none,0,0,0,sewing machine part
+86406895,beauty_personal_care,DECIMAZ,0,0,0,
+176534651,shoes_bags_accessories,DRACO,0,0,0,
+7543425,fashion_women,none,0,0,0,
+150248257,beauty_personal_care,none,0,0,0,
+106056561,shoes_bags_accessories,none,0,0,0,
+262645826,toys_games,none,0,0,0,
+7955616,beauty_personal_care,727cosmetics,0,0,0,
+90485129,shoes_bags_accessories,ORTIS,0,0,0,
+194129372,fashion_women,THOCA HOUSE,0,0,0,empty description
+210428470,fashion_women,none,0,0,0,
+215596199,fashion_men,none,0,0,0,
+107503085,fashion_women,none,0,0,0,Bishop Store is shop name
+127666717,shoes_bags_accessories,none,0,0,1,phone number in description
+103751720,fashion_women,none,0,0,0,
+121332510,shoes_bags_accessories,none,0,0,0,
+180568083,sports_outdoor,none,0,0,0,workout legging
+69442475,beauty_personal_care,TRUE ISLAND,0,0,0,
+263445174,health_medical,ADIVA,0,0,0,
+21978833,shoes_bags_accessories,Huy Hoàng,0,0,0,
+26091790,fashion_men,none,0,0,0,
+119320357,fashion_men,none,0,0,0,
+143157882,fashion_men,none,0,0,1,repeated keyword spam in description
+9472195,fashion_women,Tango,0,0,0,unisex
+1753555,beauty_personal_care,Sukin,0,0,0,
+214838233,home_appliances,VIFIBA,0,0,0,
+19270085,home_appliances,Big Blue,0,0,0,
+172937516,toys_games,Thiên Ý,0,0,0,brand only in the description
+3857057,home_appliances,KAFF,0,0,0,
+74026612,shoes_bags_accessories,Corkor,0,0,0,
+152523492,fashion_women,none,0,0,1,external YouTube link and shop address
+184773980,fashion_women,SAM CLO,0,0,0,unisex
+205957851,home_appliances,Panasonic,0,0,0,
+251941836,beauty_personal_care,Belips,1,0,0,title says shade 09 Juliette Red but desc says 04 Recall Love
+191648625,fashion_women,GUMAC,0,0,0,
+225300491,fashion_women,none,0,0,0,
+249777768,beauty_personal_care,none,0,0,0,
+22030494,fashion_women,none,0,0,0,
+119362914,fashion_women,Wanderlust Design,0,0,1,Instagram handle and store address in description
+145236266,shoes_bags_accessories,FITTOP,0,0,1,brand only in the description; keyword stuffing at end
+112957009,shoes_bags_accessories,none,1,0,0,title says genuine leather but desc says rubber
+263510078,beauty_personal_care,Golden Health,0,0,0,
+146950947,shoes_bags_accessories,none,0,0,0,
+214819532,fashion_women,none,0,0,0,unisex
+197870171,home_appliances,Tefal,0,0,0,
+217316079,health_medical,LUCASS,0,0,0,
+55141958,fashion_men,Blentino,0,0,0,
+102760795,mother_baby,Nutricare,0,0,0,
+164015304,health_medical,B Record Plus,0,0,0,
+134381038,fashion_women,none,0,0,0,
+74981497,automotive_motorbike,Michelin,0,0,0,car air purifier
+230365029,fashion_women,none,0,0,0,unisex
+253276981,mother_baby,Merries,0,0,0,
+136173326,fashion_women,MAYBI,0,0,0,
+184283290,beauty_personal_care,Sakura,0,0,0,
+212111924,fashion_women,HNOSS,0,0,0,
+263455121,fashion_women,DOTTIE,0,0,0,
+213522900,toys_games,Oball,0,0,0,tiNiStore is shop name
+243060589,beauty_personal_care,Kotex,0,0,0,
+90524527,home_appliances,SCARLETT,0,0,0,
+252137887,fashion_women,none,0,0,0,
+66759141,beauty_personal_care,MartiDerm,0,0,0,
+119363721,fashion_women,none,0,0,0,unisex
+109816492,shoes_bags_accessories,Đồ Da Thành Long,0,0,0,
+19248879,shoes_bags_accessories,Gembank,0,0,0,
+26738328,home_appliances,none,0,0,0,
+122315156,shoes_bags_accessories,Ohazo!,0,0,0,
+208617524,health_medical,none,0,0,0,SHOP10K is shop name
+82910642,shoes_bags_accessories,none,0,0,0,
+119633209,beauty_personal_care,none,0,0,1,filler symbols and shop address with no product info
+9370172,shoes_bags_accessories,Marc By Marc Jacobs,0,0,0,
+138010291,beauty_personal_care,none,0,0,0,hair dryer
+143826780,toys_games,none,0,0,0,
+1066052,other,Brother,0,0,0,embroidery thread
+83615800,fashion_men,none,0,0,0,
+7470553,fashion_women,none,0,0,0,
+109602185,health_medical,Iscale,0,1,0,uses iPhone brand name for a health scale
+197314947,fashion_women,SYMBALYON,1,0,0,title says SYMBALYON women's jacket but desc says SWEEDER unisex jacket
+112633589,shoes_bags_accessories,none,0,0,0,
+57789914,shoes_bags_accessories,none,0,0,1,franchise: BlackPink; description is pure keyword stuffing
+3022375,beauty_personal_care,Vacosi,0,0,0,
+145434529,fashion_men,OWEN,0,0,0,
+97770849,shoes_bags_accessories,none,0,0,1,phone number and address in description
+252051979,shoes_bags_accessories,rosata,0,0,0,
+16263508,fashion_men,none,0,0,0,
+255255881,health_medical,KINGSPORT,0,0,0,
+55349123,other,none,0,0,0,calibration weight
+7758708,beauty_personal_care,727cosmetics,1,0,0,title says 100ml but desc says 150ml
+186253355,toys_games,none,0,0,0,
+160406910,toys_games,none,0,0,0,
+7973548,fashion_women,none,0,0,0,
+41691376,fashion_men,none,0,0,0,
+174113067,beauty_personal_care,Hatomugi,0,0,0,
+173354164,fashion_men,STYLE MARVEN,0,0,0,
+242889281,shoes_bags_accessories,none,0,0,0,
+51692903,beauty_personal_care,MYLOVE,0,0,1,repeated keyword spam in description
+136678795,shoes_bags_accessories,Blue Peach,1,0,0,title says silver polishing cloth but desc is for 925 silver jewelry
+73784845,beauty_personal_care,Rainbow L'affair,0,0,0,
+415692,health_medical,Camry,0,0,0,
+200779142,health_medical,SKG,0,0,0,
+201515572,other,none,0,0,0,sewing machine part
+25306498,shoes_bags_accessories,none,0,0,0,
+206643215,toys_games,none,0,0,0,franchise: Pokemon
+33826324,beauty_personal_care,sennio,0,0,0,
+108456670,shoes_bags_accessories,none,0,0,0,

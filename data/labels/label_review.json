@@ -1,0 +1,12 @@
+{
+  "labels_file": "data/labels/eval_labels_gemini.csv",
+  "labeler": "Gemini (gemini.google.com chat, Nov 18 2026)",
+  "human_check": {
+    "method": "50 rows drawn at random (seed 42) from the 200; the reviewer saw Gemini's labels and corrected any label they disagreed with",
+    "reviewer": "Vy Ngo",
+    "date": "2026-11-19",
+    "rows_checked": 50,
+    "rows_corrected": 0,
+    "ids_file": "data/labels/review_50_ids.txt"
+  }
+}

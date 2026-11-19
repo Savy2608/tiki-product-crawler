@@ -22,3 +22,4 @@ nohup.out
 data/llm_cache/
 data/results/test/
 data/results/partial_*.jsonl
+data/labels/*.xlsx

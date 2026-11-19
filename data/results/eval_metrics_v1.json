@@ -1,0 +1,100 @@
+{
+  "label_source": "gemini labels; 50 random rows checked by a human, 0 corrected",
+  "labels_file": "data/labels/eval_labels_gemini.csv",
+  "labeled_rows": 200,
+  "scored_rows": 200,
+  "not_scored_rejected_or_missing": 0,
+  "strata": {
+    "edge_case": {
+      "population": 32,
+      "labeled": 32
+    },
+    "llm_flagged": {
+      "population": 79,
+      "labeled": 50
+    },
+    "other": {
+      "population": 889,
+      "labeled": 118
+    }
+  },
+  "category": {
+    "accuracy": 0.73,
+    "estimated_accuracy": 0.7318,
+    "macro_f1": 0.5208,
+    "top_confusions": {
+      "shoes_bags_accessories -> fashion_women": 20,
+      "shoes_bags_accessories -> fashion_men": 11,
+      "fashion_women -> fashion_men": 7,
+      "health_medical -> beauty_personal_care": 2,
+      "other -> stationery_office": 2,
+      "health_medical -> home_appliances": 1,
+      "fashion_women -> beauty_personal_care": 1,
+      "shoes_bags_accessories -> home_living": 1,
+      "health_medical -> home_living": 1,
+      "sports_outdoor -> fashion_men": 1
+    }
+  },
+  "brand": {
+    "exact_match_rate": 0.925,
+    "rows_with_true_brand": 103,
+    "null_when_brand_exists_rate": 0.0777,
+    "rows_with_predicted_brand": 99,
+    "wrong_or_invented_brand_rate": 0.0707
+  },
+  "flags": {
+    "name_description_mismatch": {
+      "true_positives": 3,
+      "false_positives": 3,
+      "false_negatives": 5,
+      "true_negatives": 189,
+      "precision": 0.5,
+      "recall": 0.375,
+      "estimated_precision": 0.5,
+      "estimated_recall": 0.1978
+    },
+    "counterfeit_or_brand_risk": {
+      "true_positives": 2,
+      "false_positives": 4,
+      "false_negatives": 0,
+      "true_negatives": 194,
+      "precision": 0.3333,
+      "recall": 1.0,
+      "estimated_precision": 0.3333,
+      "estimated_recall": 1.0
+    },
+    "spam_or_low_quality": {
+      "true_positives": 18,
+      "false_positives": 20,
+      "false_negatives": 0,
+      "true_negatives": 162,
+      "precision": 0.4737,
+      "recall": 1.0,
+      "estimated_precision": 0.4737,
+      "estimated_recall": 1.0
+    }
+  },
+  "calibration": {
+    "high_confidence_threshold": 0.9,
+    "high_confidence_rows": 125,
+    "high_confidence_wrong_share": 0.096
+  },
+  "llm_run": {
+    "model": "claude-haiku-5-5",
+    "prompts": {
+      "enrich": {
+        "version": "enrich_v1",
+        "sha": "880246cb4cfd"
+      },
+      "flag": {
+        "version": "flag_v1",
+        "sha": "bda486f53385"
+      }
+    },
+    "products": 1000,
+    "rejects": 0,
+    "cost_per_1000_products_usd": 0.5017,
+    "mean_latency_ms_per_product": 2601,
+    "reject_rate": 0.0
+  }
+}

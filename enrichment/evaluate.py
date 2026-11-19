@@ -256,8 +256,8 @@ def error_rows(rows):
     return errors
 
 
-def run_scoring(config):
-    labels_path = os.path.join(config.data_dir, "labels", "eval_labels.csv")
+def run_scoring(config, labels_path=None, label_source="human"):
+    labels_path = labels_path or os.path.join(config.data_dir, "labels", "eval_labels.csv")
     manifest_path = os.path.join(config.data_dir, "labels", "eval_manifest.json")
     if not os.path.exists(labels_path):
         raise SystemExit(f"{labels_path} not found: run with --make-template first")
@@ -277,6 +277,9 @@ def run_scoring(config):
         run_summary = json.load(f)
 
     metrics, rows = score(labels, results, manifest, run_summary)
+    # Who made the labels decides what the numbers mean: accuracy against a person,
+    # or only agreement with another model.
+    metrics = dict({"label_source": label_source, "labels_file": labels_path}, **metrics)
     write_json(os.path.join(config.results_dir, f"eval_metrics_{VERSION}.json"), metrics)
     errors = error_rows(rows)
     write_jsonl(os.path.join(config.results_dir, f"eval_errors_{VERSION}.jsonl"), errors)
@@ -300,12 +303,16 @@ def main(argv=None):
                    help="LLM-flagged products in the eval sample (default: %(default)s)")
     p.add_argument("--seed", type=int, default=42, help="random seed (default: %(default)s)")
     p.add_argument("--force", action="store_true", help="overwrite an existing labels file")
+    p.add_argument("--labels", default=None,
+                   help="labels CSV to score (default: data/labels/eval_labels.csv)")
+    p.add_argument("--label-source", default="human",
+                   help="who made the labels, stored in the metrics (default: %(default)s)")
     args = p.parse_args(argv)
     config = EnrichConfig(data_dir=args.data_dir)
     if args.make_template:
         make_template(config, args.size, args.flagged, args.seed, args.force)
         return 0
-    return run_scoring(config)
+    return run_scoring(config, args.labels, args.label_source)
 
 
 if __name__ == "__main__":
