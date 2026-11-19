@@ -16,6 +16,7 @@ This project downloads product details for 200,000 Tiki product IDs, keeps 6 fie
 - [Output](#output)
 - [Results](#results)
 - [Known limitations](#known-limitations)
+- [LLM Enrichment & Risk Flagging](#llm-enrichment--risk-flagging)
 - [Project structure](#project-structure)
 - [Documentation](#documentation)
 
@@ -60,7 +61,7 @@ Run the unit tests (they never contact Tiki):
 python -m unittest discover -s tests -v
 ```
 
-The 42 tests also run on GitHub Actions (Python 3.9 and 3.12) for every push.
+The 85 tests also run on GitHub Actions (Python 3.9 and 3.12) for every push.
 
 ## Configuration
 
@@ -170,6 +171,29 @@ Data checks on the final output:
 - **The full crawl ran on the first version.** It was already running when the code was refactored, and the output format did not change. The refactored code was tested against the live API with `--retry-errors` (pycurl was accepted by Tiki), but the speed gain from connection reuse was not measured on a full batch.
 - **Snapshot.** Prices and availability change; the data reflects Tiki between Oct 22 and Nov 5, 2026.
 
+## LLM Enrichment & Risk Flagging
+
+A second stage, in [`enrichment/`](enrichment/), uses an LLM on a 1,000-product sample of the crawled data: it turns the Vietnamese name and description into structured fields (category from a fixed list, brand, attributes) and flags listings for review (spam, counterfeit or brand risk, name-description mismatch), next to deterministic rule checks. The LLM is treated as a component to audit: every answer is schema-validated, cached and costed, and the output is scored against labels.
+
+**v1 results:** 1,000 products enriched with `claude-haiku-5-5` for **$0.50 per 1,000 products**, 0 rejects, completeness check passed; 203 products flagged (81 LLM flags, 129 rule flags). Against 200 labels made by Gemini, with 50 random rows checked by a person, category agreement is **73%** and brand agreement **92.5%**; both flag prompts have recall 1.0 and precision 0.33–0.50. These are agreement figures with a second model, not accuracy against independent human labels.
+
+```bash
+python -m enrichment.sample && python -m enrichment.rules
+python -m enrichment.enrich --limit 20     # cheap test run (needs LLM_API_KEY in .env, Python 3.10+)
+python -m enrichment.enrich                # 1,000 products, stops at LLM_MAX_COST_USD (default $2)
+python -m enrichment.evaluate --labels data/labels/eval_labels_gemini.csv
+```
+
+| Evaluation (200 rows) | Value |
+| --- | --- |
+| Category agreement / macro F1 | 73.0% / 0.52 |
+| Brand exact match | 92.5% |
+| `spam_or_low_quality` precision / recall | 0.47 / 1.00 |
+| `counterfeit_or_brand_risk` precision / recall | 0.33 / 1.00 |
+| `name_description_mismatch` precision / recall | 0.50 / 0.38 |
+
+The main finding: 31 of the 54 category disagreements are accessories filed under clothing, because the v1 prompt lists category names without definitions. Pipeline, design decisions (fixed categories, rules plus LLM, caching instead of temperature 0, cost limit) and limitations are in [`enrichment/README.md`](enrichment/README.md); every disagreement group is in the [error analysis](docs/error_analysis.md).
+
 ## Project structure
 
 ```text
@@ -179,13 +203,18 @@ Data checks on the final output:
 │   ├── api_client.py        # HTTP transport, throttle, retries and backoff
 │   ├── parser.py            # JSON fields and HTML cleaning
 │   └── storage.py           # input CSV, batch files, resume, verify
-├── tests/                   # 42 unit tests (no network)
+├── enrichment/              # LLM enrichment and risk flagging (see enrichment/README.md)
+├── data/                    # sample, labels and results of the enrichment stage
+├── tests/                   # 85 unit tests (no network, LLM faked)
 ├── products-0-200000.csv    # input: 200,000 product IDs
-├── requirements.txt         # pycurl (already included in Anaconda)
+├── requirements.txt         # pycurl; anthropic and pydantic for enrichment/
 ├── .env.example             # example settings
 ├── docs/
 │   ├── bug_report.md        # 9 problems found and how they were handled
-│   └── task_report.md       # goal, steps, code review changes and results
+│   ├── task_report.md       # goal, steps, code review changes and results
+│   ├── llm_enrichment_spec.md  # plan for the enrichment stage
+│   ├── labeling_guide.md    # rules for the evaluation labels
+│   └── error_analysis.md    # where the LLM disagrees with the labels, and why
 ├── sample/                  # example API response, products and errors
 ├── experiments/             # my early test scripts (see experiments/README.md)
 ├── .github/workflows/       # runs the tests on every push
@@ -198,3 +227,6 @@ Data checks on the final output:
 - [Bug report](docs/bug_report.md) – the 9 problems I found while building and running the crawler: symptom, cause, how I found it, fix and lesson.
 - [Task report](docs/task_report.md) – goal, approach, steps, changes after code review, results and next steps.
 - [Experiments](experiments/README.md) – my first test scripts and how the first crawler differs from the final one.
+- [LLM enrichment](enrichment/README.md) – the second stage: pipeline, results, design decisions and limitations.
+- [Error analysis](docs/error_analysis.md) – every group of LLM disagreements with the labels, its cause and the fix tried or proposed.
+- [Labeling guide](docs/labeling_guide.md) and [enrichment spec](docs/llm_enrichment_spec.md).
